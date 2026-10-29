@@ -11,7 +11,7 @@ function App() {
   return (
     <main>
       <h1>SecureCode Tutor</h1>
-      <p role="status">{status}</p>
+      <output>{status}</output>
     </main>
   )
 }

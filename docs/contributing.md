@@ -24,23 +24,39 @@ Gabriel's original model experiments live on the `AI-testing` branch.
 
 ## Before you push
 
-Run the checks for whatever you touched. CI runs the same ones.
-
 ```bash
-cd backend  && uv run ruff check . && uv run ruff format . && uv run pytest
-cd runner   && uv run ruff check . && uv run ruff format . && uv run pytest
-cd frontend && npm run lint && npm run format && npx vitest run && npm run build
-sandbox/smoke-test.sh      # if you changed sandbox/
+python3 check.py --install-hook   # once per clone: git push runs the fast gate first
+python3 check.py                  # the full gate: exactly what CI runs
 ```
+
+CI runs `check.py` for each area, so if it passes locally it passes in CI.
+`python3 check.py --list` shows every check. In short:
+
+| Area | Checks |
+|---|---|
+| backend, runner | lockfile, Ruff lint + format, mypy (strict), pytest, pip-audit |
+| frontend | oxlint incl. accessibility rules, Prettier, TypeScript, Vitest incl. axe WCAG tests, build, npm audit |
+| repo | gitleaks (secrets in history), shellcheck, hadolint, compose config, lint of check.py |
+| sandbox | the ASan smoke test |
+| images | builds every image and scans it with Trivy (HIGH/CRITICAL with a fix available) |
+
+CodeQL also runs on every PR (`.github/workflows/codeql.yml`), and results show
+under the repo's **Security** tab.
+
+When a check fails, fix the cause. Turn a rule off only with a comment saying
+why (see `.hadolint.yaml` for an example).
 
 ## Code style
 
-- **Python:** Ruff handles linting and formatting (config in each `pyproject.toml`).
-  Use type hints on public functions and Pydantic models for request and response bodies.
+- **Python:** Ruff handles linting and formatting, and mypy checks types in strict mode
+  (config in each `pyproject.toml`). Type every function. Use Pydantic models for
+  request and response bodies.
 - **TypeScript:** oxlint for linting and Prettier for formatting (no semicolons,
   single quotes, 100 columns).
 - **C samples:** compile cleanly with `-Wall -Wextra`. Mark the intended bug with a comment.
 - Add or update tests with every behavior change.
+- **Accessibility:** new UI must meet WCAG 2.1 AA. Add a `wcagViolations` test for
+  each new component, and follow the manual checklist in [accessibility.md](accessibility.md).
 
 ## Dependencies
 

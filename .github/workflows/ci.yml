@@ -1,5 +1,6 @@
 name: CI
 
+# Every job runs check.py, so CI checks exactly what `python3 check.py` checks locally.
 on:
   pull_request:
     branches: [main, test]
@@ -16,15 +17,12 @@ concurrency:
 
 jobs:
   python:
-    name: ${{ matrix.service }} (lint + tests)
+    name: ${{ matrix.service }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         service: [backend, runner]
-    defaults:
-      run:
-        working-directory: ${{ matrix.service }}
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.3
@@ -32,17 +30,11 @@ jobs:
           version: "0.13.6"
           enable-cache: true
           cache-dependency-glob: ${{ matrix.service }}/uv.lock
-      - run: uv sync --locked
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run pytest
+      - run: python3 check.py ${{ matrix.service }}
 
   frontend:
-    name: frontend (lint + tests + build)
+    name: frontend
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -50,44 +42,32 @@ jobs:
           node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npx vitest run
-      - run: npm run build
+      - run: npm ci --no-fund --no-audit
+        working-directory: frontend
+      - run: python3 check.py frontend
+
+  repo:
+    name: repo (secrets, shellcheck, hadolint, compose)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gitleaks scans the whole history
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.6"
+      - run: python3 check.py repo
 
   sandbox:
     name: sandbox smoke test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - run: sandbox/smoke-test.sh
+      - run: python3 check.py sandbox
 
   images:
-    name: ${{ matrix.service }} image
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - service: backend
-          - service: runner
-          - service: frontend
-            target: prod
-    steps:
-      - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/build-push-action@v7
-        with:
-          context: ${{ matrix.service }}
-          target: ${{ matrix.target }}
-          push: false
-          cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
-
-  compose:
-    name: docker-compose.yml is valid
+    name: images (build + Trivy)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - run: docker compose config --quiet
+      - run: python3 check.py images

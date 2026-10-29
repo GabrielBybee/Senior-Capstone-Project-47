@@ -8,8 +8,9 @@
 
 ## Checklist
 
-- [ ] CI passes
+- [ ] `python3 check.py` passes (CI runs the same checks)
 - [ ] Tests added or updated for new behavior
 - [ ] Docs updated if setup, architecture or decisions changed
+- [ ] New UI meets WCAG 2.1 AA (axe test added, manual checklist in docs/accessibility.md)
 - [ ] No secrets, API keys or `.env` files committed
 - [ ] The reference fix never reaches the browser (if this touches exercises or hints)

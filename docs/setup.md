@@ -78,9 +78,30 @@ changing dependencies (`pyproject.toml`, `package.json`), run
 Stop with `Ctrl+C`, or `docker compose down`. To also wipe the database, run
 `docker compose down -v`.
 
-## 4. Run checks without Docker
+## 4. Run the checks
 
-These are the same commands CI runs.
+One command runs every check CI runs, and ends with a pass/fail summary:
+
+```bash
+python3 check.py              # full gate (about 1–4 min; the first run downloads tool images)
+python3 check.py --fast       # skip slow checks (about 25 s)
+python3 check.py --fix        # auto-fix formatting and lint, then check
+python3 check.py frontend     # one area: backend, runner, frontend, repo, sandbox, images
+python3 check.py --list       # every check, plus the ones planned for later
+```
+
+Install the pre-push hook once per clone. After that, `git push` runs
+`check.py --fast` first and stops the push if anything fails:
+
+```bash
+python3 check.py --install-hook
+```
+
+In an emergency, `git push --no-verify` skips it, but CI still runs everything.
+
+### Running individual tools
+
+Handy while you're working on one thing:
 
 ```bash
 # backend (same for runner/)
@@ -88,6 +109,7 @@ cd backend
 uv sync                      # creates .venv with Python 3.12
 uv run ruff check .
 uv run ruff format .
+uv run mypy .
 uv run pytest
 uv run uvicorn app.main:app --reload   # run it on its own at :8000
 

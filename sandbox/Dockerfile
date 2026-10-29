@@ -9,5 +9,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin sandbox
-USER sandbox
+USER 10001
 WORKDIR /tmp

@@ -16,6 +16,13 @@ docker compose up --build
 
 Open <http://localhost:5173>. Full instructions are in [docs/setup.md](docs/setup.md).
 
+Before pushing, run the quality gate. It's the same one CI runs:
+
+```bash
+python3 check.py --install-hook   # once: runs the fast gate before every push
+python3 check.py                  # everything
+```
+
 ## Repository layout
 
 | Folder | What |
@@ -31,9 +38,10 @@ Open <http://localhost:5173>. Full instructions are in [docs/setup.md](docs/setu
 - [Setup](docs/setup.md): get it running
 - [Architecture](docs/architecture.md): how the pieces fit and the design rules
 - [Contributing](docs/contributing.md): branches, checks and code style
+- [Accessibility](docs/accessibility.md): the WCAG 2.1 AA target and checklist
 - [Decisions](docs/decisions.md): why things are the way they are
 
 ## Status
 
-Phase 1, project skeleton. All services run, the sandbox smoke test passes and
-CI is set up. Exercise generation, grading and hints come next.
+Phase 1, project skeleton. All services run, the sandbox smoke test passes, and
+a 25-check quality gate (`check.py`) runs locally and in CI. Exercise generation, grading and hints come next.

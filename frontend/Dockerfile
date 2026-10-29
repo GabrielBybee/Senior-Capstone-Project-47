@@ -7,7 +7,7 @@ RUN npm ci
 FROM deps AS dev
 COPY . .
 RUN chown -R node:node /app
-USER node
+USER 1000
 EXPOSE 5173
 CMD ["npm", "run", "dev"]
 
@@ -16,7 +16,9 @@ COPY . .
 RUN npm run build
 
 # Production: static files served by nginx, /api proxied to the backend.
-FROM nginx:1.29-alpine AS prod
+FROM nginx:1.30-alpine AS prod
+# Pick up Alpine security fixes released since the nginx image was built.
+RUN apk upgrade --no-cache
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80

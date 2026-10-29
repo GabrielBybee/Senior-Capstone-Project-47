@@ -8,6 +8,43 @@ Format: **Decision**, then *why*, then the alternatives considered.
 
 ---
 
+## 2026-10-29: One quality gate, check.py, shared by developers and CI
+
+**Decision:** `check.py` runs every check, and each CI job just calls
+`python3 check.py <area>`. A pre-push hook runs `check.py --fast`. Tools that
+aren't Python or Node packages (gitleaks, shellcheck, hadolint, Trivy) run from
+pinned official Docker images.
+
+*Why:* One list of checks instead of two that drift apart. "Passes locally" means
+"passes in CI". Nobody has to install extra tools.
+
+## 2026-10-29: Target WCAG 2.1 AA
+
+**Decision:** Every student and instructor page must meet WCAG 2.1 AA, checked by
+oxlint `jsx-a11y`, axe-core in tests and a manual checklist. Details are in
+[accessibility.md](accessibility.md).
+
+*Why:* The ADA Title II rule requires it for public universities (compliance date
+April 26, 2027). Fixing accessibility after building costs far more.
+
+## 2026-10-29: mypy in strict mode for Python
+
+**Decision:** Backend and runner are type-checked with mypy `strict = true`, with
+the Pydantic plugin.
+
+*Why:* Starting strict on a small codebase is easy; tightening it later is not.
+
+*Alternatives:* pyright, which is faster but needs Node on the Python side.
+
+## 2026-10-29: Frontend production image on nginx 1.30 (stable) + security updates
+
+**Decision:** Base the production image on `nginx:1.30-alpine`, the stable line, and
+run `apk upgrade` when building it.
+
+*Why:* Trivy found 48 HIGH/CRITICAL vulnerabilities in `nginx:1.29-alpine`, an old
+release line that no longer gets updates. The newer base fixed most of them, and
+`apk upgrade` picks up fixes released since the image was built.
+
 ## 2026-10-28: oxlint instead of ESLint for the frontend
 
 **Decision:** Lint TypeScript with oxlint, which is what the Vite React template

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the fast quality gate before every push.
+# Install once per clone: python3 check.py --install-hook
+# Skip in an emergency:   git push --no-verify
+exec python3 "$(git rev-parse --show-toplevel)/check.py" --fast
