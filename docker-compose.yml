@@ -1,0 +1,63 @@
+# Local development stack. Start it with: docker compose up --build
+# Ports are bound to 127.0.0.1 so nothing is exposed outside this machine.
+name: securecode
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      API_PROXY_TARGET: http://backend:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # keep the image's node_modules, not the host's
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      RUNNER_URL: http://runner:8001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-securecode}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-securecode}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      db:
+        condition: service_healthy
+      runner:
+        condition: service_started
+
+  runner:
+    build: ./runner
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ./runner/app:/app/app
+
+  # No published port: only the other services can reach the database.
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-securecode}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-securecode}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
