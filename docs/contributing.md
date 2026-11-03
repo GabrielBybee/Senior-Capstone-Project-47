@@ -20,7 +20,7 @@ main      ← stable. Only updated by PRs from test. Deploys from here (later).
 
 Never push directly to `main` or `test`.
 
-Gabriel's original model experiments live on the `AI-testing` branch.
+The original MindRouter model experiments live on the `AI-testing` branch.
 
 ## Before you push
 
