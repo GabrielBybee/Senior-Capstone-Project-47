@@ -1,0 +1,32 @@
+name: CodeQL
+
+# GitHub's code security scanner. Results show under the repo's Security tab.
+on:
+  pull_request:
+    branches: [main, test]
+  push:
+    branches: [main, test]
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, to catch newly published vulnerability patterns
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}

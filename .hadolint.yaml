@@ -1,0 +1,6 @@
+# Dockerfile lint settings for hadolint (run by check.py).
+ignored:
+  # "Pin versions in apt-get install": Ubuntu removes old package versions from
+  # its archive, so pinned versions break the build within weeks. We pin the base
+  # image tag instead, and Dependabot/Trivy keep it current.
+  - DL3008

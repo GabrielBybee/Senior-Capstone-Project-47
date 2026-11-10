@@ -1,0 +1,33 @@
+# Weekly dependency update PRs, opened against the test branch.
+# Minor and patch updates are grouped into one PR per ecosystem.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directories: ["/backend", "/runner"]
+    target-branch: test
+    schedule:
+      interval: weekly
+    groups:
+      python-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    target-branch: test
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    directories: ["/backend", "/runner", "/frontend", "/sandbox"]
+    target-branch: test
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: test
+    schedule:
+      interval: weekly
