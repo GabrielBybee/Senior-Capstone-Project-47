@@ -83,7 +83,7 @@ Stop with `Ctrl+C`, or `docker compose down`. To also wipe the database, run
 One command runs every check CI runs, and ends with a pass/fail summary:
 
 ```bash
-python3 check.py              # full gate (about 1–4 min; the first run downloads tool images)
+python3 check.py              # full gate (about 10 min; images are rebuilt from scratch each time)
 python3 check.py --fast       # skip slow checks (about 25 s)
 python3 check.py --fix        # auto-fix formatting and lint, then check
 python3 check.py frontend     # one area: backend, runner, frontend, repo, sandbox, images

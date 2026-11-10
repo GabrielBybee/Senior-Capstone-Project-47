@@ -109,7 +109,9 @@ def python_checks(service: str) -> list[Check]:
 def image_steps() -> list[list[str]]:
     steps: list[list[str]] = []
     for tag, context, extra in IMAGES:
-        steps.append(["docker", "build", "-q", "-t", tag, *extra, context])
+        # Fresh build every time: a cached "apply security updates" layer goes stale,
+        # so Trivy would scan an older image than the one we'd actually ship.
+        steps.append(["docker", "build", "-q", "--pull", "--no-cache", "-t", tag, *extra, context])
     for tag, _, _ in IMAGES:
         steps.append(
             [

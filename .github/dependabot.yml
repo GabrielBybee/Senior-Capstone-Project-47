@@ -1,5 +1,7 @@
 # Weekly dependency update PRs, opened against the test branch.
 # Minor and patch updates are grouped into one PR per ecosystem.
+# Runtime and base-image versions (Python, Node, nginx, Ubuntu) are upgraded on
+# purpose, everywhere at once, so Dependabot doesn't propose those bumps.
 version: 2
 updates:
   - package-ecosystem: uv
@@ -19,12 +21,29 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      # Must match the Node version we run (frontend/.nvmrc).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directories: ["/backend", "/runner", "/frontend", "/sandbox"]
     target-branch: test
     schedule:
       interval: weekly
+    ignore:
+      # Python version must match .python-version and CI.
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # Node version must match frontend/.nvmrc and CI.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+      # We stay on nginx's stable line; odd minor versions are experimental "mainline".
+      - dependency-name: nginx
+        update-types: ["version-update:semver-minor"]
+      # A new Ubuntu release changes the compiler and sanitizer packages.
+      - dependency-name: ubuntu
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

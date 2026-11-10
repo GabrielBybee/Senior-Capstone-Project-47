@@ -1,11 +1,17 @@
 FROM python:3.12-slim
 
+# Pick up Debian security fixes released since the Python image was built.
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=ghcr.io/astral-sh/uv:0.13.6 /uv /bin/uv
 
 ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never \
+    UV_NO_CACHE=1 \
     PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
