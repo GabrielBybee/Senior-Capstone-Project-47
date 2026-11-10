@@ -1,7 +1,7 @@
 # Image for every student code run. It is started with no network, a
 # read-only filesystem, no capabilities and CPU/memory/process limits
 # (see smoke-test.sh for the exact flags the runner will use).
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
