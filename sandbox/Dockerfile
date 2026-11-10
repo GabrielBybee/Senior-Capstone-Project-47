@@ -4,6 +4,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
         gcc libc6-dev clang libclang-rt-18-dev cppcheck valgrind \
     && rm -rf /var/lib/apt/lists/*

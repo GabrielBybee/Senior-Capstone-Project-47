@@ -8,6 +8,19 @@ Format: **Decision**, then *why*, then the alternatives considered.
 
 ---
 
+## 2026-11-10: Apply OS security updates in every image, and scan fresh builds
+
+**Decision:** The backend, runner and sandbox images run `apt-get upgrade` when
+built (the frontend already ran `apk upgrade`). `check.py` builds images with
+`--pull --no-cache` before Trivy scans them.
+
+*Why:* Two HIGH zlib vulnerabilities were published in the `python:3.12-slim`
+base image after Phase 1 merged, with fixes already available from Debian. A
+cached "apply updates" layer also hid fixable findings locally, so the scan
+must run on a fresh build to match what would ship.
+
+*Cost:* The images check takes about 6 minutes locally instead of seconds.
+
 ## 2026-10-29: One quality gate, check.py, shared by developers and CI
 
 **Decision:** `check.py` runs every check, and each CI job just calls
