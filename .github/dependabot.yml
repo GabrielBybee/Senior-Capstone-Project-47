@@ -41,9 +41,10 @@ updates:
       # We stay on nginx's stable line; odd minor versions are experimental "mainline".
       - dependency-name: nginx
         update-types: ["version-update:semver-minor"]
-      # A new Ubuntu release changes the compiler and sanitizer packages.
+      # A new Ubuntu release changes the compiler and sanitizer packages, and
+      # interim releases (24.10, 25.04, ...) count as minor bumps, so block both.
       - dependency-name: ubuntu
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: github-actions
     directory: /
