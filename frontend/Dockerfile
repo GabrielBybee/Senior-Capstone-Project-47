@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Production: static files served by nginx, /api proxied to the backend.
-FROM nginx:1.30-alpine AS prod
+FROM nginx:1.31-alpine AS prod
 # Pick up Alpine security fixes released since the nginx image was built.
 RUN apk upgrade --no-cache
 COPY nginx.conf /etc/nginx/conf.d/default.conf
